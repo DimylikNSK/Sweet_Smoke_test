@@ -1,0 +1,43 @@
+#Можно поле с именем урезать. Если предполагается очень большое количество пользователей
+#Так же можно и сократить размер поля `phone` 255 символов для него очень много.
+
+
+CREATE TABLE `users` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) DEFAULT NULL,
+  `gender` TINYINT(4) NOT NULL DEFAULT 0 COMMENT '0 - не указан, 1 - мужчина, 2 -
+  женщина.',
+  `birth_date` INT(11) NOT NULL COMMENT 'Дата в unixtime.',
+  PRIMARY KEY (`id`)
+);
+
+ CREATE TABLE `phone_numbers` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`user_id` INT(11) NOT NULL,
+	`phone` VARCHAR(255) NULL DEFAULT NULL,
+	PRIMARY KEY (`id`),
+	INDEX `FK_phone_numbers_users` (`user_id`),
+	CONSTRAINT `FK_phone_numbers_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+)
+
+#
+#Текс запроса
+
+SELECT
+  users.`name`,
+  count(users.id) as 'count'
+FROM
+  users
+LEFT JOIN phone_numbers ON users.id = phone_numbers.user_id
+
+WHERE
+  gender = 2
+and
+  users.birth_date
+BETWEEN
+  UNIX_TIMESTAMP(DATE_SUB(now(),INTERVAL 22 YEAR))
+and
+  UNIX_TIMESTAMP(DATE_SUB(now(),INTERVAL 18 YEAR))
+
+GROUP BY
+  users.id
